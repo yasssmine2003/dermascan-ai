@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # dermascan
 
 A new Flutter project.
@@ -15,3 +16,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# dermascan-ai
+>>>>>>> f89c89ad350ad7cb286191a33256203a53617ec0

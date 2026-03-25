@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/models/user_model.dart';
 import 'auth_provider.dart';
 import 'widgets/auth_text_field.dart';
-import 'widgets/social_btn.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,14 +26,14 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
     _animCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    );
-    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+        vsync: this, duration: const Duration(milliseconds: 700));
+    _fadeAnim =
+        CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.06),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
+    ).animate(
+        CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
     _animCtrl.forward();
   }
 
@@ -52,9 +52,15 @@ class _LoginScreenState extends State<LoginScreen>
     final ok = await auth.login(
       email: _emailCtrl.text.trim(),
       password: _passCtrl.text,
-      context: context,
     );
-    if (ok && mounted) context.go('/dashboard');
+    if (ok && mounted) {
+      // Redirection selon le rôle
+      if (auth.isDermatologue) {
+        context.go('/doctor-dashboard');
+      } else {
+        context.go('/dashboard');
+      }
+    }
   }
 
   @override
@@ -81,19 +87,14 @@ class _LoginScreenState extends State<LoginScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 20),
-                      // Header
                       _buildHeader(),
-                      const SizedBox(height: 36),
-                      // Card principale
+                      const SizedBox(height: 32),
                       _buildFormCard(),
-                      const SizedBox(height: 24),
-                      // Divider
+                      const SizedBox(height: 28),
                       _buildDivider(),
                       const SizedBox(height: 20),
-                      // Boutons sociaux
-                      _buildSocialButtons(),
-                      const SizedBox(height: 32),
-                      // Lien inscription
+                      _buildDemoAccounts(),
+                      const SizedBox(height: 28),
                       _buildSignUpLink(),
                       const SizedBox(height: 32),
                     ],
@@ -107,12 +108,11 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  // ── Header ─────────────────────────────────────────────────
+  // ── Header ────────────────────────────────────────────────
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Back button
         GestureDetector(
           onTap: () => context.go('/onboarding'),
           child: Container(
@@ -122,15 +122,11 @@ class _LoginScreenState extends State<LoginScreen>
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.border),
             ),
-            child: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary,
-              size: 18,
-            ),
+            child: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: AppColors.textPrimary, size: 18),
           ),
         ),
         const SizedBox(height: 28),
-        // Logo petit
         Row(children: [
           Container(
             width: 38, height: 38,
@@ -138,49 +134,37 @@ class _LoginScreenState extends State<LoginScreen>
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
-              Icons.biotech_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
+            child: const Icon(Icons.biotech_rounded,
+                color: Colors.white, size: 20),
           ),
           const SizedBox(width: 10),
-          const Text(
-            'DermaScan AI',
-            style: TextStyle(
-              fontFamily: 'Nunito',
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primary,
-            ),
-          ),
+          const Text('DermaScan AI',
+              style: TextStyle(
+                fontFamily: 'Nunito', fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              )),
         ]),
         const SizedBox(height: 20),
-        const Text(
-          'Bon retour ! 👋',
-          style: TextStyle(
-            fontFamily: 'Nunito',
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
-            height: 1.2,
-          ),
-        ),
+        const Text('Bon retour ! 👋',
+            style: TextStyle(
+              fontFamily: 'Nunito', fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary, height: 1.2,
+            )),
         const SizedBox(height: 8),
         const Text(
-          'Connectez-vous pour accéder à votre tableau de bord.',
+          'Connectez-vous pour accéder à votre espace.',
           style: TextStyle(
-            fontFamily: 'Nunito',
-            fontSize: 15,
-            color: AppColors.textSecondary,
-            height: 1.5,
+            fontFamily: 'Nunito', fontSize: 15,
+            color: AppColors.textSecondary, height: 1.5,
           ),
         ),
       ],
     );
   }
 
-  // ── Card du formulaire ──────────────────────────────────────
+  // ── Card formulaire ───────────────────────────────────────
   Widget _buildFormCard() {
     return Consumer<AuthProvider>(
       builder: (_, auth, __) => Container(
@@ -191,18 +175,15 @@ class _LoginScreenState extends State<LoginScreen>
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withOpacity(0.08),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
+              blurRadius: 24, offset: const Offset(0, 8),
             ),
           ],
         ),
         child: Column(children: [
-          // Message d'erreur
           if (auth.errorMessage != null) ...[
             _ErrorBanner(message: auth.errorMessage!),
             const SizedBox(height: 16),
           ],
-          // Email
           AuthTextField(
             label: 'Adresse email',
             hint: 'exemple@email.com',
@@ -212,7 +193,6 @@ class _LoginScreenState extends State<LoginScreen>
             onChanged: (_) => auth.clearError(),
           ),
           const SizedBox(height: 18),
-          // Mot de passe
           AuthTextField(
             label: 'Mot de passe',
             hint: '••••••••',
@@ -225,34 +205,28 @@ class _LoginScreenState extends State<LoginScreen>
                 auth.obscurePassword
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: AppColors.textHint,
-                size: 20,
+                color: AppColors.textHint, size: 20,
               ),
               onPressed: auth.togglePassword,
             ),
           ),
           const SizedBox(height: 12),
-          // Mot de passe oublié
           Align(
             alignment: Alignment.centerRight,
             child: GestureDetector(
               onTap: () {},
-              child: const Text(
-                'Mot de passe oublié ?',
-                style: TextStyle(
-                  fontFamily: 'Nunito',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
-              ),
+              child: const Text('Mot de passe oublié ?',
+                  style: TextStyle(
+                    fontFamily: 'Nunito', fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  )),
             ),
           ),
           const SizedBox(height: 24),
-          // Bouton connexion
-          _LoginButton(onTap: _onLogin, isLoading: auth.isLoading),
-          const SizedBox(height: 16),
-          // Biométrie
+          _LoginButton(
+              onTap: _onLogin, isLoading: auth.isLoading),
+          const SizedBox(height: 14),
           _BiometricButton(auth: auth),
         ]),
       ),
@@ -261,38 +235,48 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildDivider() {
     return Row(children: [
-      const Expanded(child: Divider(color: AppColors.border, thickness: 1)),
+      const Expanded(
+          child: Divider(color: AppColors.border, thickness: 1)),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Text(
-          'ou continuer avec',
-          style: TextStyle(
-            fontFamily: 'Nunito',
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textHint,
-          ),
-        ),
+        child: Text('comptes de démonstration',
+            style: const TextStyle(
+              fontFamily: 'Nunito', fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textHint,
+            )),
       ),
-      const Expanded(child: Divider(color: AppColors.border, thickness: 1)),
+      const Expanded(
+          child: Divider(color: AppColors.border, thickness: 1)),
     ]);
   }
 
-  Widget _buildSocialButtons() {
+  // ── Comptes démo ──────────────────────────────────────────
+  Widget _buildDemoAccounts() {
     return Row(children: [
       Expanded(
-        child: SocialBtn(
-          label: 'Google',
-          icon: _GoogleIcon(),
-          onTap: () {},
+        child: _DemoCard(
+          role: 'Patient',
+          email: 'patient@demo.com',
+          icon: Icons.person_rounded,
+          color: AppColors.primary,
+          onTap: () {
+            _emailCtrl.text = 'patient@demo.com';
+            _passCtrl.text = 'demo1234';
+          },
         ),
       ),
-      const SizedBox(width: 14),
+      const SizedBox(width: 12),
       Expanded(
-        child: SocialBtn(
-          label: 'Apple',
-          icon: const Icon(Icons.apple, size: 22, color: Colors.black),
-          onTap: () {},
+        child: _DemoCard(
+          role: 'Dermatologue',
+          email: 'dermato@demo.com',
+          icon: Icons.medical_services_rounded,
+          color: const Color(0xFF7F77DD),
+          onTap: () {
+            _emailCtrl.text = 'dermato@demo.com';
+            _passCtrl.text = 'demo1234';
+          },
         ),
       ),
     ]);
@@ -300,35 +284,30 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildSignUpLink() {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      const Text(
-        'Pas encore de compte ? ',
-        style: TextStyle(
-          fontFamily: 'Nunito',
-          fontSize: 14,
-          color: AppColors.textSecondary,
-        ),
-      ),
+      const Text('Pas encore de compte ? ',
+          style: TextStyle(
+            fontFamily: 'Nunito', fontSize: 14,
+            color: AppColors.textSecondary,
+          )),
       GestureDetector(
         onTap: () => context.go('/register'),
-        child: const Text(
-          'S\'inscrire',
-          style: TextStyle(
-            fontFamily: 'Nunito',
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: AppColors.primary,
-          ),
-        ),
+        child: const Text('S\'inscrire',
+            style: TextStyle(
+              fontFamily: 'Nunito', fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            )),
       ),
     ]);
   }
 }
 
-// ── Sous-widgets Login ────────────────────────────────────────
+// ── Widgets ───────────────────────────────────────────────────
 class _LoginButton extends StatelessWidget {
   final VoidCallback onTap;
   final bool isLoading;
-  const _LoginButton({required this.onTap, required this.isLoading});
+  const _LoginButton(
+      {required this.onTap, required this.isLoading});
 
   @override
   Widget build(BuildContext context) {
@@ -349,31 +328,24 @@ class _LoginButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withOpacity(0.30),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+              blurRadius: 16, offset: const Offset(0, 6),
             ),
           ],
         ),
         child: Center(
           child: isLoading
               ? const SizedBox(
-                  width: 22,
-                  height: 22,
+                  width: 22, height: 22,
                   child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2.2,
-                  ),
-                )
+                      color: Colors.white, strokeWidth: 2.2))
               : const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.login_rounded,
                         color: Colors.white, size: 20),
                     SizedBox(width: 8),
-                    Text(
-                      'Se connecter',
-                      style: AppFonts.labelBtn,
-                    ),
+                    Text('Se connecter',
+                        style: AppFonts.labelBtn),
                   ],
                 ),
         ),
@@ -392,7 +364,8 @@ class _BiometricButton extends StatelessWidget {
       onTap: auth.toggleBiometric,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+            horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
           color: auth.biometricEnabled
               ? AppColors.primary.withOpacity(0.08)
@@ -402,27 +375,23 @@ class _BiometricButton extends StatelessWidget {
             color: auth.biometricEnabled
                 ? AppColors.primary.withOpacity(0.3)
                 : AppColors.border,
-            width: 1.2,
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.fingerprint_rounded,
-              color: auth.biometricEnabled
-                  ? AppColors.primary
-                  : AppColors.textHint,
-              size: 22,
-            ),
+            Icon(Icons.fingerprint_rounded,
+                color: auth.biometricEnabled
+                    ? AppColors.primary
+                    : AppColors.textHint,
+                size: 22),
             const SizedBox(width: 8),
             Text(
               auth.biometricEnabled
                   ? 'Biométrie activée'
                   : 'Connexion biométrique',
               style: TextStyle(
-                fontFamily: 'Nunito',
-                fontSize: 14,
+                fontFamily: 'Nunito', fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: auth.biometricEnabled
                     ? AppColors.primary
@@ -436,6 +405,48 @@ class _BiometricButton extends StatelessWidget {
   }
 }
 
+class _DemoCard extends StatelessWidget {
+  final String role;
+  final String email;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+  const _DemoCard({
+    required this.role, required this.email,
+    required this.icon, required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 6),
+          Text(role,
+              style: TextStyle(
+                fontFamily: 'Nunito', fontSize: 13,
+                fontWeight: FontWeight.w700, color: color,
+              )),
+          Text('Remplir auto',
+              style: TextStyle(
+                fontFamily: 'Nunito', fontSize: 10,
+                color: color.withOpacity(0.7),
+              )),
+        ]),
+      ),
+    );
+  }
+}
+
 class _ErrorBanner extends StatelessWidget {
   final String message;
   const _ErrorBanner({required this.message});
@@ -443,7 +454,8 @@ class _ErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.riskHigh.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
@@ -455,73 +467,14 @@ class _ErrorBanner extends StatelessWidget {
             color: AppColors.riskHigh, size: 18),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            message,
-            style: const TextStyle(
-              fontFamily: 'Nunito',
-              fontSize: 13,
-              color: AppColors.riskHigh,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          child: Text(message,
+              style: const TextStyle(
+                fontFamily: 'Nunito', fontSize: 13,
+                color: AppColors.riskHigh,
+                fontWeight: FontWeight.w500,
+              )),
         ),
       ]),
     );
   }
-}
-
-// Icône Google dessinée avec CustomPaint
-class _GoogleIcon extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) =>
-      CustomPaint(size: const Size(22, 22), painter: _GooglePainter());
-}
-
-class _GooglePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = Offset(size.width / 2, size.height / 2);
-    final r = size.width / 2;
-
-    // Cercle de fond
-    canvas.drawCircle(c, r,
-        Paint()..color = const Color(0xFFF5F5F5));
-
-    // Lettre G stylisée
-    final segments = [
-      (const Color(0xFF4285F4), -90.0, 90.0),
-      (const Color(0xFF34A853), 0.0, 90.0),
-      (const Color(0xFFFBBC05), 90.0, 90.0),
-      (const Color(0xFFEA4335), 180.0, 90.0),
-    ];
-
-    for (final seg in segments) {
-      canvas.drawArc(
-        Rect.fromCircle(center: c, radius: r * 0.72),
-        _toRad(seg.$2),
-        _toRad(seg.$3),
-        false,
-        Paint()
-          ..color = seg.$1
-          ..strokeWidth = 3.2
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.butt,
-      );
-    }
-
-    // Barre horizontale du G
-    canvas.drawLine(
-      Offset(c.dx, c.dy),
-      Offset(c.dx + r * 0.72, c.dy),
-      Paint()
-        ..color = const Color(0xFF4285F4)
-        ..strokeWidth = 3.2
-        ..strokeCap = StrokeCap.round,
-    );
-  }
-
-  double _toRad(double deg) => deg * 3.14159 / 180;
-
-  @override
-  bool shouldRepaint(_) => false;
 }
