@@ -27,8 +27,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _fadeAnim = CurvedAnimation(
-        parent: _animCtrl, curve: Curves.easeOut);
+    _fadeAnim =
+        CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.04),
       end: Offset.zero,
@@ -55,13 +55,26 @@ class _DashboardScreenState extends State<DashboardScreen>
           position: _slideAnim,
           child: CustomScrollView(
             slivers: [
-              SliverToBoxAdapter(child: _buildAppBar(context, prov)),
+              // App Bar
+              SliverToBoxAdapter(
+                  child: _buildAppBar(context, prov)),
+              // Bouton CTA Scanner
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  padding:
+                      const EdgeInsets.fromLTRB(20, 16, 20, 0),
                   child: _buildCTAButton(context),
                 ),
               ),
+              // Actions rapides
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: _buildQuickActions(context),
+                ),
+              ),
+              // Contenu scrollable
               SliverPadding(
                 padding: const EdgeInsets.all(20),
                 sliver: SliverList(
@@ -87,7 +100,8 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   // ── App Bar ───────────────────────────────────────────────
-  Widget _buildAppBar(BuildContext context, DashboardProvider prov) {
+  Widget _buildAppBar(
+      BuildContext context, DashboardProvider prov) {
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 12,
@@ -119,12 +133,12 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: Text('T',
                 style: TextStyle(
                   fontFamily: 'Nunito', fontSize: 18,
-                  fontWeight: FontWeight.w800, color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
                 )),
           ),
         ),
         const SizedBox(width: 12),
-        // Salutation
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,12 +186,11 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // ── CTA Analyser ──────────────────────────────────────────
+  // ── CTA Scanner ───────────────────────────────────────────
   Widget _buildCTAButton(BuildContext context) {
     return GestureDetector(
       onTap: () => context.go('/camera'),
       child: Container(
-        margin: const EdgeInsets.only(top: 16),
         height: 64,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -193,27 +206,28 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
           ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.camera_alt_rounded,
-                  color: Colors.white, size: 20),
+        child: Row(children: [
+          const SizedBox(width: 16),
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(10),
             ),
-            const SizedBox(width: 14),
-            const Column(
+            child: const Icon(Icons.camera_alt_rounded,
+                color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Analyser une nouvelle lésion',
                     style: TextStyle(
                       fontFamily: 'Nunito', fontSize: 15,
-                      fontWeight: FontWeight.w800, color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
                     )),
                 Text('Scan IA en quelques secondes',
                     style: TextStyle(
@@ -222,16 +236,111 @@ class _DashboardScreenState extends State<DashboardScreen>
                     )),
               ],
             ),
-            const Spacer(),
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: Icon(Icons.arrow_forward_ios_rounded,
-                  color: Colors.white70, size: 16),
-            ),
-          ],
-        ),
+          ),
+          const Icon(Icons.arrow_forward_ios_rounded,
+              color: Colors.white70, size: 16),
+          const SizedBox(width: 16),
+        ]),
       ),
     );
+  }
+
+  // ── Actions rapides ───────────────────────────────────────
+  Widget _buildQuickActions(BuildContext context) {
+    return Column(children: [
+      // Ligne 1 : Dermatologue + Corps
+      Row(children: [
+        Expanded(
+          child: _QuickBtn(
+            icon: Icons.medical_services_rounded,
+            label: 'Trouver un\ndermatologue',
+            color: AppColors.primary,
+            onTap: () => context.go('/dermatologist'),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _QuickBtn(
+            icon: Icons.accessibility_new_rounded,
+            label: 'Carte\ncorporelle',
+            color: AppColors.accent,
+            onTap: () => context.go('/bodymap'),
+          ),
+        ),
+      ]),
+      const SizedBox(height: 12),
+
+      // Bannière Mes RDV
+      GestureDetector(
+        onTap: () => context.go('/dermatologist'),
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+            color: AppColors.bgWhite,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+                color: AppColors.primary.withOpacity(0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 8, offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(children: [
+            const SizedBox(width: 16),
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.event_available_rounded,
+                  color: AppColors.primary, size: 18),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Mes rendez-vous',
+                      style: TextStyle(
+                        fontFamily: 'Nunito', fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      )),
+                  Text('Voir et gérer vos RDV',
+                      style: TextStyle(
+                        fontFamily: 'Nunito', fontSize: 11,
+                        color: AppColors.textHint,
+                      )),
+                ],
+              ),
+            ),
+            // Badge RDV en attente
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.riskMedium.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('1 à venir',
+                  style: TextStyle(
+                    fontFamily: 'Nunito', fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.riskMedium,
+                  )),
+            ),
+            const SizedBox(width: 12),
+            const Icon(Icons.arrow_forward_ios_rounded,
+                size: 14, color: AppColors.textHint),
+            const SizedBox(width: 16),
+          ]),
+        ),
+      ),
+    ]);
   }
 
   // ── Bottom Navigation ─────────────────────────────────────
@@ -308,18 +417,68 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 }
 
-// ── NavItem ───────────────────────────────────────────────────
+// ── Quick Button ──────────────────────────────────────────────
+class _QuickBtn extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  const _QuickBtn({
+    required this.icon, required this.label,
+    required this.color, required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 64,
+        decoration: BoxDecoration(
+          color: AppColors.bgWhite,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8, offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(children: [
+          const SizedBox(width: 14),
+          Container(
+            width: 34, height: 34,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(label,
+                style: TextStyle(
+                  fontFamily: 'Nunito', fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: color, height: 1.3,
+                )),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+// ── Nav Item ──────────────────────────────────────────────────
 class _NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool active;
   final VoidCallback onTap;
-
   const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.active,
-    required this.onTap,
+    required this.icon, required this.label,
+    required this.active, required this.onTap,
   });
 
   @override
@@ -340,25 +499,23 @@ class _NavItem extends StatelessWidget {
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icon,
-                color: active ? AppColors.primary : AppColors.textHint,
-                size: 22,
-              ),
+              child: Icon(icon,
+                  color: active
+                      ? AppColors.primary
+                      : AppColors.textHint,
+                  size: 22),
             ),
             const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Nunito',
-                fontSize: 10,
-                fontWeight:
-                    active ? FontWeight.w700 : FontWeight.w500,
-                color: active
-                    ? AppColors.primary
-                    : AppColors.textHint,
-              ),
-            ),
+            Text(label,
+                style: TextStyle(
+                  fontFamily: 'Nunito', fontSize: 10,
+                  fontWeight: active
+                      ? FontWeight.w700
+                      : FontWeight.w500,
+                  color: active
+                      ? AppColors.primary
+                      : AppColors.textHint,
+                )),
           ],
         ),
       ),
