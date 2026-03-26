@@ -20,8 +20,8 @@ import 'features/tracking/tracking_screen.dart';
 import 'features/tracking/tracking_provider.dart';
 import 'features/dermatologist/dermatologist_screen.dart';
 import 'features/dermatologist/dermatologist_provider.dart';
-//import 'features/profile/profile_screen.dart';
-//import 'features/profile/profile_provider.dart';
+import 'features/profile/profile_screen.dart';
+import 'features/profile/profile_provider.dart';
 import 'features/booking/booking_screen.dart';
 import 'features/booking/booking_provider.dart';
 import 'features/doctor/doctor_dashboard_screen.dart';
@@ -60,8 +60,8 @@ final GoRouter _router = GoRouter(
         pageBuilder: (_, __) => const NoTransitionPage(child: TrackingScreen())),
     GoRoute(path: '/dermatologist',
         pageBuilder: (_, __) => const NoTransitionPage(child: DermatologistScreen())),
-   // GoRoute(path: '/profile',
-       // pageBuilder: (_, __) => const NoTransitionPage(child: ProfileScreen())),
+    GoRoute(path: '/profile',
+        pageBuilder: (_, __) => const NoTransitionPage(child: ProfileScreen())),
     GoRoute(path: '/booking',
         pageBuilder: (_, __) => const NoTransitionPage(child: BookingScreen())),
     GoRoute(path: '/doctor-dashboard',
@@ -83,7 +83,7 @@ class DermaScanApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BodyMapProvider()),
         ChangeNotifierProvider(create: (_) => TrackingProvider()),
         ChangeNotifierProvider(create: (_) => DermatologistProvider()),
-        //ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => BookingProvider()),
         ChangeNotifierProvider(create: (_) => DoctorDashboardProvider()),
       ],
