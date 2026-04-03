@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/models/user_model.dart';
 
 enum AppointmentStatus { pending, accepted, refused, completed }
 enum DiagnosticStatus { pending, reviewed }
@@ -38,6 +37,8 @@ class PatientDiagnostic {
   final Color riskColor;
   final String riskLabel;
   final DateTime date;
+  final String imageUrl;
+  final List<String> abcdeFlags;
   DiagnosticStatus status;
   String? doctorOpinion;
 
@@ -50,6 +51,8 @@ class PatientDiagnostic {
     required this.riskColor,
     required this.riskLabel,
     required this.date,
+    required this.imageUrl,
+    required this.abcdeFlags,
     this.status = DiagnosticStatus.pending,
     this.doctorOpinion,
   });
@@ -109,7 +112,7 @@ class DoctorDashboardProvider extends ChangeNotifier {
     ),
   ];
 
-  // ── Diagnostics en attente d'avis ─────────────────────────
+  // ── Diagnostics ───────────────────────────────────────────
   final List<PatientDiagnostic> diagnostics = [
     PatientDiagnostic(
       id: 'd1',
@@ -120,6 +123,13 @@ class DoctorDashboardProvider extends ChangeNotifier {
       riskColor: AppColors.riskHigh,
       riskLabel: 'Élevé',
       date: DateTime.now().subtract(const Duration(days: 1)),
+      imageUrl:
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Melanoma.jpg/320px-Melanoma.jpg',
+      abcdeFlags: [
+        'Asymétrie',
+        'Bords irréguliers',
+        'Couleur hétérogène',
+      ],
       status: DiagnosticStatus.pending,
     ),
     PatientDiagnostic(
@@ -131,6 +141,9 @@ class DoctorDashboardProvider extends ChangeNotifier {
       riskColor: AppColors.riskMedium,
       riskLabel: 'Modéré',
       date: DateTime.now().subtract(const Duration(days: 3)),
+      imageUrl:
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Dermoscopy_of_a_compound_melanocytic_nevus.jpg/320px-Dermoscopy_of_a_compound_melanocytic_nevus.jpg',
+      abcdeFlags: ['Légère asymétrie'],
       status: DiagnosticStatus.pending,
     ),
     PatientDiagnostic(
@@ -142,14 +155,19 @@ class DoctorDashboardProvider extends ChangeNotifier {
       riskColor: AppColors.riskLow,
       riskLabel: 'Faible',
       date: DateTime.now().subtract(const Duration(days: 5)),
+      imageUrl:
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Benign_Nevus_on_arm.jpg/320px-Benign_Nevus_on_arm.jpg',
+      abcdeFlags: [],
       status: DiagnosticStatus.reviewed,
-      doctorOpinion: 'Grain de beauté bénin. Surveillance annuelle suffisante.',
+      doctorOpinion:
+          'Grain de beauté bénin. Surveillance annuelle suffisante.',
     ),
   ];
 
   // ── Statistiques ──────────────────────────────────────────
-  int get pendingAppointments =>
-      appointments.where((a) => a.status == AppointmentStatus.pending).length;
+  int get pendingAppointments => appointments
+      .where((a) => a.status == AppointmentStatus.pending)
+      .length;
 
   int get todayAppointments {
     final now = DateTime.now();
@@ -160,7 +178,9 @@ class DoctorDashboardProvider extends ChangeNotifier {
   }
 
   int get pendingDiagnostics =>
-      diagnostics.where((d) => d.status == DiagnosticStatus.pending).length;
+      diagnostics
+          .where((d) => d.status == DiagnosticStatus.pending)
+          .length;
 
   // ── Actions RDV ───────────────────────────────────────────
   void acceptAppointment(String id) {
@@ -183,22 +203,31 @@ class DoctorDashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Formatage date ────────────────────────────────────────
+  // ── Formatage ─────────────────────────────────────────────
   String formatDateTime(DateTime dt) {
     final now = DateTime.now();
     final diff = dt.difference(now);
-
     if (diff.inHours < 24 && dt.day == now.day) {
-      return 'Aujourd\'hui ${dt.hour.toString().padLeft(2, '0')}h${dt.minute.toString().padLeft(2, '0')}';
+      return 'Aujourd\'hui '
+          '${dt.hour.toString().padLeft(2, '0')}h'
+          '${dt.minute.toString().padLeft(2, '0')}';
     }
-    if (diff.inDays == 1 || (diff.inHours < 48 && dt.day == now.day + 1)) {
-      return 'Demain ${dt.hour.toString().padLeft(2, '0')}h${dt.minute.toString().padLeft(2, '0')}';
+    if (dt.day == now.day + 1) {
+      return 'Demain '
+          '${dt.hour.toString().padLeft(2, '0')}h'
+          '${dt.minute.toString().padLeft(2, '0')}';
     }
-    const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
-        'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    return '${days[dt.weekday - 1]} ${dt.day} ${months[dt.month - 1]} · '
-        '${dt.hour.toString().padLeft(2, '0')}h${dt.minute.toString().padLeft(2, '0')}';
+    const days = [
+      'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'
+    ];
+    const months = [
+      'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
+      'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'
+    ];
+    return '${days[dt.weekday - 1]} ${dt.day} '
+        '${months[dt.month - 1]} · '
+        '${dt.hour.toString().padLeft(2, '0')}h'
+        '${dt.minute.toString().padLeft(2, '0')}';
   }
 
   String formatTimeAgo(DateTime dt) {

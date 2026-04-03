@@ -2,27 +2,26 @@ import 'package:flutter/material.dart';
 import '../../core/models/user_model.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  // Infos personnelles
   String fullName = 'Thomas Bouchard';
   String email = 'thomas.bouchard@email.com';
   String phone = '+33 6 12 34 56 78';
-  String birthDate = '15/03/1990';
+  DateTime? birthDate;                    // ← DateTime au lieu de String
   String bloodType = 'A+';
 
-  // Sécurité
-  bool biometricEnabled = true;
-  bool notificationsEnabled = true;
-  bool dataEncrypted = true;
-  bool twoFactorEnabled = false;
-  bool autoBackup = true;
+  // Sécurité — valeurs persistantes dans le provider global
+  bool _notificationsEnabled = true;
+  bool _twoFactorEnabled = false;
+  bool _autoBackup = true;
 
-  // Statistiques patient
+  bool get notificationsEnabled => _notificationsEnabled;
+  bool get twoFactorEnabled => _twoFactorEnabled;
+  bool get autoBackup => _autoBackup;
+
   final int totalScans = 12;
   final int totalLesions = 4;
   final int daysActive = 87;
   final String memberSince = 'Janvier 2025';
 
-  // Rendez-vous
   final List<Map<String, dynamic>> upcomingAppointments = [
     {
       'doctor': 'Dr. Sarah Martin',
@@ -57,26 +56,50 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleBiometric() {
-    biometricEnabled = !biometricEnabled;
-    notifyListeners();
-  }
-
   void toggleNotifications() {
-    notificationsEnabled = !notificationsEnabled;
+    _notificationsEnabled = !_notificationsEnabled;
     notifyListeners();
   }
 
   void toggleTwoFactor() {
-    twoFactorEnabled = !twoFactorEnabled;
+    _twoFactorEnabled = !_twoFactorEnabled;
     notifyListeners();
   }
 
   void toggleAutoBackup() {
-    autoBackup = !autoBackup;
+    _autoBackup = !_autoBackup;
     notifyListeners();
   }
 
+  // ── Date de naissance ─────────────────────────────────────
+  void setBirthDate(DateTime date) {
+    birthDate = date;
+    notifyListeners();
+  }
+
+  String get birthDateFormatted {
+    if (birthDate == null) return 'Non renseignée';
+    const months = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre',
+      'novembre', 'décembre'
+    ];
+    return '${birthDate!.day} ${months[birthDate!.month - 1]} ${birthDate!.year}';
+  }
+
+  int? get age {
+    if (birthDate == null) return null;
+    final now = DateTime.now();
+    int age = now.year - birthDate!.year;
+    if (now.month < birthDate!.month ||
+        (now.month == birthDate!.month &&
+            now.day < birthDate!.day)) {
+      age--;
+    }
+    return age;
+  }
+
+  // ── Profil ────────────────────────────────────────────────
   void saveProfile({
     required String name,
     required String email,

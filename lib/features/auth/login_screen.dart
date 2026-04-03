@@ -226,8 +226,7 @@ class _LoginScreenState extends State<LoginScreen>
           const SizedBox(height: 24),
           _LoginButton(
               onTap: _onLogin, isLoading: auth.isLoading),
-          const SizedBox(height: 14),
-          _BiometricButton(auth: auth),
+          const SizedBox(height: 24),
         ]),
       ),
     );
@@ -354,56 +353,7 @@ class _LoginButton extends StatelessWidget {
   }
 }
 
-class _BiometricButton extends StatelessWidget {
-  final AuthProvider auth;
-  const _BiometricButton({required this.auth});
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: auth.toggleBiometric,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(
-            horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: auth.biometricEnabled
-              ? AppColors.primary.withOpacity(0.08)
-              : AppColors.bgSoft,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: auth.biometricEnabled
-                ? AppColors.primary.withOpacity(0.3)
-                : AppColors.border,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.fingerprint_rounded,
-                color: auth.biometricEnabled
-                    ? AppColors.primary
-                    : AppColors.textHint,
-                size: 22),
-            const SizedBox(width: 8),
-            Text(
-              auth.biometricEnabled
-                  ? 'Biométrie activée'
-                  : 'Connexion biométrique',
-              style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: auth.biometricEnabled
-                    ? AppColors.primary
-                    : AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _DemoCard extends StatelessWidget {
   final String role;

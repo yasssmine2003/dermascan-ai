@@ -12,7 +12,6 @@ class AuthProvider extends ChangeNotifier {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _acceptPolicy = false;
-  bool _biometricEnabled = false;
   UserRole _selectedRole = UserRole.patient;
 
   // Getters
@@ -22,7 +21,6 @@ class AuthProvider extends ChangeNotifier {
   bool get obscurePassword => _obscurePassword;
   bool get obscureConfirm => _obscureConfirm;
   bool get acceptPolicy => _acceptPolicy;
-  bool get biometricEnabled => _biometricEnabled;
   UserRole get selectedRole => _selectedRole;
   bool get isLoading => _status == AuthStatus.loading;
   bool get isLoggedIn => _currentUser != null;
@@ -42,11 +40,6 @@ class AuthProvider extends ChangeNotifier {
 
   void togglePolicy() {
     _acceptPolicy = !_acceptPolicy;
-    notifyListeners();
-  }
-
-  void toggleBiometric() {
-    _biometricEnabled = !_biometricEnabled;
     notifyListeners();
   }
 
@@ -119,6 +112,7 @@ class AuthProvider extends ChangeNotifier {
     required String password,
     required String confirmPassword,
     required String phone,
+    DateTime? dateOfBirth,
     String? speciality,
     String? rppsNumber,
     String? cabinetAddress,
@@ -172,6 +166,17 @@ class AuthProvider extends ChangeNotifier {
       }
     }
 
+    // Validate date of birth (optional, but reasonable age if provided)
+    if (dateOfBirth != null) {
+      final age = DateTime.now().difference(dateOfBirth!).inDays ~/ 365;
+      if (age < 13 || age > 120) {
+        _errorMessage = 'Âge non réaliste (13-120 ans).';
+        _status = AuthStatus.error;
+        notifyListeners();
+        return false;
+      }
+    }
+
     _status = AuthStatus.loading;
     _errorMessage = null;
     notifyListeners();
@@ -184,6 +189,7 @@ class AuthProvider extends ChangeNotifier {
       email: email,
       phone: phone,
       role: _selectedRole,
+      dateOfBirth: dateOfBirth,
       speciality: speciality,
       cabinetAddress: cabinetAddress,
       rppsNumber: rppsNumber,
