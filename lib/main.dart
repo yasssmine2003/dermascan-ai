@@ -26,6 +26,9 @@ import 'features/booking/booking_screen.dart';
 import 'features/booking/booking_provider.dart';
 import 'features/doctor/doctor_dashboard_screen.dart';
 import 'features/doctor/doctor_dashboard_provider.dart';
+import 'features/doctor/doctor_patients_screen.dart';
+import 'features/doctor/doctor_agenda_screen.dart';
+import 'features/doctor/doctor_profile_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,7 +69,14 @@ final GoRouter _router = GoRouter(
         pageBuilder: (_, __) => const NoTransitionPage(child: BookingScreen())),
     GoRoute(path: '/doctor-dashboard',
         pageBuilder: (_, __) => const NoTransitionPage(child: DoctorDashboardScreen())),
+        GoRoute(path: '/doctor-patients',
+    pageBuilder: (_, __) => const NoTransitionPage(child: DoctorPatientsScreen())),
+GoRoute(path: '/doctor-agenda',
+    pageBuilder: (_, __) => const NoTransitionPage(child: DoctorAgendaScreen())),
+GoRoute(path: '/doctor-profile',
+    pageBuilder: (_, __) => const NoTransitionPage(child: DoctorProfileScreen())),
   ],
+  
 );
 
 class DermaScanApp extends StatelessWidget {

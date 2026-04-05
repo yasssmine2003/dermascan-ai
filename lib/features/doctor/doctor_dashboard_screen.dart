@@ -732,53 +732,52 @@ class _DoctorDashboardScreenState
 
   // ── Bottom Nav ────────────────────────────────────────────
   Widget _buildBottomNav(BuildContext context) {
-    return Container(
-      height: 72 + MediaQuery.of(context).padding.bottom,
-      decoration: const BoxDecoration(
-        color: AppColors.bgWhite,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 20,
-            offset: Offset(0, -4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _NavItem(
-            icon: Icons.dashboard_rounded,
-            label: 'Accueil',
-            active: true,
-            color: const Color(0xFF7F77DD),
-            onTap: () {},
-          ),
-          _NavItem(
-            icon: Icons.people_rounded,
-            label: 'Patients',
-            active: false,
-            color: const Color(0xFF7F77DD),
-            onTap: () {},
-          ),
-          _NavItem(
-            icon: Icons.calendar_month_rounded,
-            label: 'Agenda',
-            active: false,
-            color: const Color(0xFF7F77DD),
-            onTap: () {},
-          ),
-          _NavItem(
-            icon: Icons.person_outline_rounded,
-            label: 'Profil',
-            active: false,
-            color: const Color(0xFF7F77DD),
-            onTap: () => context.go('/profile'),
-          ),
-        ],
-      ),
-    );
-  }
+  return Container(
+    height: 72 + MediaQuery.of(context).padding.bottom,
+    decoration: const BoxDecoration(
+      color: AppColors.bgWhite,
+      boxShadow: [
+        BoxShadow(
+          color: Color(0x0F000000),
+          blurRadius: 20, offset: Offset(0, -4),
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        _NavItem(
+          icon: Icons.dashboard_rounded,
+          label: 'Accueil',
+          active: true,
+          color: const Color(0xFF7F77DD),
+          onTap: () => context.go('/doctor-dashboard'),
+        ),
+        _NavItem(
+          icon: Icons.people_rounded,
+          label: 'Patients',
+          active: false,
+          color: const Color(0xFF7F77DD),
+          onTap: () => context.go('/doctor-patients'),
+        ),
+        _NavItem(
+          icon: Icons.calendar_month_rounded,
+          label: 'Agenda',
+          active: false,
+          color: const Color(0xFF7F77DD),
+          onTap: () => context.go('/doctor-agenda'),
+        ),
+        _NavItem(
+          icon: Icons.person_outline_rounded,
+          label: 'Profil',
+          active: false,
+          color: const Color(0xFF7F77DD),
+          onTap: () => context.go('/doctor-profile'),
+        ),
+      ],
+    ),
+  );
+}
 }
 
 // ══════════════════════════════════════════════════════════════
